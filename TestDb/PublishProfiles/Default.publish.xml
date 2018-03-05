@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<TargetDatabaseName>TestDb</TargetDatabaseName>
+	<TargetConnectionString>Data Source=.\SQLEXPRESS;Integrated Security=True;Pooling=False</TargetConnectionString>
+	<DeployScriptFileName>TestDb.DB.sql</DeployScriptFileName>
+	<ProfileVersionNumber>1</ProfileVersionNumber>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <BlockOnPossibleDataLoss>False</BlockOnPossibleDataLoss>
+    <DropObjectsNotInSource>True</DropObjectsNotInSource>
+    <GenerateSmartDefaults>True</GenerateSmartDefaults>
+  </PropertyGroup>
+	<ItemGroup>
+		<SqlCmdVariable Include="Param1">
+			<Value>ParamValue1</Value>
+		</SqlCmdVariable>
+		<SqlCmdVariable Include="Param2">
+			<Value>ParamValue2</Value>
+		</SqlCmdVariable>
+	</ItemGroup>
+</Project>

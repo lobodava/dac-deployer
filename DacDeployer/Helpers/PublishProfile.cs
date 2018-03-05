@@ -46,7 +46,15 @@ namespace DeployDatabase.Helpers
 
 			ReadPublishProfile(PublishProfileFile);
 
-		}
+            Console.WriteLine("PublishProfileFile properties:");
+            Console.WriteLine("------------------------------");
+            Console.WriteLine($"ConnectionString....{( this.ConnectionString == null ? "null" : $"\"{this.ConnectionString}\"")}");
+            Console.WriteLine($"DatabaseName........{    (this.DatabaseName == null ? "null" : $"\"{this.DatabaseName}\"")}");
+            Console.WriteLine($"ServerName..........{      (this.ServerName == null ? "null" : $"\"{this.ServerName}\"")}");
+            Console.WriteLine($"UserID..............{          (this.UserID == null ? "null" : $"\"{this.UserID}\"")}");
+            Console.WriteLine($"Password............{        (this.Password == null ? "null" : $"\"{this.Password}\"")}");
+            Console.WriteLine();
+        }
 
 		private void ReadPublishProfile(string targetPublishProfileFile) 
 		{

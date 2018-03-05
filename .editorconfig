@@ -1,0 +1,15 @@
+﻿# About editorconfig — https://blog.zwezdin.com/2017/vs-2017-editorconfig/
+# EditorConfig Properties — https://github.com/editorconfig/editorconfig/wiki/EditorConfig-Properties
+# .NET coding convention settings for EditorConfig — https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#this_and_me
+# File used by Roslyn team — https://github.com/dotnet/roslyn/blob/master/.editorconfig
+
+
+root = true
+
+[*.xml]
+indent_style = space
+indent_size = 4
+
+[*.cs]
+indent_style = space
+indent_size = 4

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using static System.String;
 
 namespace DeployDatabase.Helpers
@@ -53,7 +51,7 @@ namespace DeployDatabase.Helpers
 					return tryPublishProfileFile;
 			}
 
-			tryPublishProfileFile = "default.publish.xml";
+			tryPublishProfileFile =  Path.Combine(PublishProfileFolder, "default.publish.xml"); ;
 
 			if (File.Exists(tryPublishProfileFile))
 				return tryPublishProfileFile;

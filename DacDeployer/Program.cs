@@ -2,215 +2,168 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml;
 using DeployDatabase.Helpers;
 using Microsoft.SqlServer.Dac;
 using static System.String;
 
 namespace DeployDatabase
 {
-	class Program
-	{
-		private const string MsBuildXmlNamespace = "http://schemas.microsoft.com/developer/msbuild/2003";
+    class Program
+    {
+        static void Main()
+        {
+            Console.WriteLine($"Welcome to Dac Deployer! Console.Title = {Console.Title}");
+            
+            try 
+            {
+                (var dacPacFolderPath, var dacPacFilePath) = PathResolver.GetDacPacPaths();
 
-        private static string DacPacFolder;
-        private static string DacPacFile;
-        private static string PublishProfileFolder;
-		private static string PublishProfileFile;        
-		//private static string BuildConfiguration;
+                var publishProfileFilePath = PathResolver.GetPublishProfilePath();
+                
+                var publishProfile = new PublishProfile(publishProfileFilePath);
 
-        private static string BeforeDeploymentScript;
-        private static string SqlCmdVariablesScript;
+                (var beforeDeploymentScriptPath, var sqlCmdVariablesScriptPath) = PathResolver.GetBeforeDeploymentPaths(dacPacFolderPath);
 
+                AppendSqlCmdVariables(sqlCmdVariablesScriptPath, publishProfile);
 
-        static void Main(string[] args)
-		{
-			Console.WriteLine($"Welcome to Database Deployer! Console.Title = {Console.Title}");
-			
-			try {
+                if (ExecuteBeforeDeployment(beforeDeploymentScriptPath, publishProfile)) 
+                    DeployDacPac(dacPacFilePath, publishProfile);
 
-                (DacPacFolder, DacPacFile) = PathResolver.GetDacPacPaths();
+                if (RunsDirectly()) Console.ReadKey();
 
-                (PublishProfileFolder, PublishProfileFile) = PathResolver.GetPublishProfilePaths();
+            }
+            catch(Exception ex) 
+            {
+                ExitWithError(ex.Message);
+            }
+        }
 
-               
-				
-				var publishProfile = new PublishProfile(PublishProfileFile);
+        private static bool ExecuteBeforeDeployment(string beforeDeploymentScript, PublishProfile publishProfile)
+        {
+            if (IsNullOrWhiteSpace(beforeDeploymentScript) || !DatabaseExists(publishProfile))
+                return true;
 
-                Console.WriteLine($"ConnectionString = \"{publishProfile.ConnectionString ?? "null"}\"");
-				Console.WriteLine($"DatabaseName = \"{publishProfile.DatabaseName ?? "null"}\"");
-				Console.WriteLine($"ServerName = \"{publishProfile.ServerName ?? "null"}\"");
-				Console.WriteLine($"UserID = \"{publishProfile.UserID ?? "null"}\"");
-				Console.WriteLine($"Password = \"{publishProfile.Password ?? "null"}\"");
+            var beforeDeploymentWorkingDirectory = Path.GetDirectoryName(beforeDeploymentScript);
+            var beforeDeploymentScriptName = Path.GetFileName(beforeDeploymentScript);
 
-                BeforeDeploymentScript = ConsoleAppArgsParser.GetParamValue("BeforeDeploymentScript");
-                SqlCmdVariablesScript = ConsoleAppArgsParser.GetParamValue("SqlCmdVariablesScript");
+            var arguments = new string[]
+            {
+                $"-S {publishProfile.ServerName}",
+                $"-i \"{beforeDeploymentScriptName}\""
+            };
 
+            return ProcessStarter.StartProcess(beforeDeploymentWorkingDirectory, "sqlcmd", arguments, "Success Message :)", "Fail Message :(");
+        }
 
+        private static bool DatabaseExists(PublishProfile publishProfile)
+        {
+            using (SqlConnection conn = new SqlConnection(publishProfile.ConnectionString))
+            {
+                SqlCommand cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = $"select case when db_id('{publishProfile.DatabaseName}') is null then 0 else 1 end";
 
-                Console.WriteLine($"BeforeDeploymentRelativeDirectory = \"{publishProfile.BeforeDeploymentRelativeDirectory ?? "null"}\"");
+                conn.Open();
 
-				if (!IsNullOrWhiteSpace(DacPacFolder)  && !IsNullOrWhiteSpace(publishProfile.BeforeDeploymentRelativeDirectory)) {
-					publishProfile.BeforeDeploymentAbsoluteDirectory = Path.Combine(DacPacFolder, publishProfile.BeforeDeploymentRelativeDirectory);
-				}
+                return (int)cmd.ExecuteScalar() == 1;
+            }
+        }
 
-				AppendSqlCmdVariables(publishProfile);
+        private static void AppendSqlCmdVariables( string sqlCmdVariablesScript, PublishProfile publishProfile)
+        {
 
-				var beforeDeploymentSuccess = true;
+            if (IsNullOrWhiteSpace(sqlCmdVariablesScript))
+                return;
 
-				if (!IsNullOrWhiteSpace(publishProfile.BeforeDeploymentAbsoluteDirectory) && !IsNullOrWhiteSpace(publishProfile.BeforeDeploymentScriptName) && !IsNullOrWhiteSpace(publishProfile.DatabaseName) && DatabaseExists(publishProfile)) {
+            var sb = new StringBuilder();
 
-					var arguments = new string[] {
-						$"-S {publishProfile.ServerName}",
-						$"-i \"{publishProfile.BeforeDeploymentScriptName}\""
-					};
+            sb.AppendLine("-- The content of this file is autogenerated.")
+                .AppendLine($"-- The following SqlCmd variables were inserted from publish profile \"{Path.GetFileName(publishProfile.FilePath)}\".")
+                .AppendLine("-- Don't add anything here — the content will be completely renewed.")
+                .AppendLine();
 
-					beforeDeploymentSuccess = ProcessStarter.StartProcess(publishProfile.BeforeDeploymentAbsoluteDirectory, "sqlcmd", arguments, "Success Message :)", "Fail Message :(");
+            
+            foreach (var pair in publishProfile.SqlCmdVariables)
+            {
+                sb.AppendLine($":setvar {pair.Key} \"{pair.Value}\"");
+            }
+        
+            File.WriteAllText(sqlCmdVariablesScript, sb.ToString());
+        }
 
-				}
+        private static void DeployDacPac(string dacPacFile, PublishProfile publishProfile) 
+        {
+            // https://blogs.msmvps.com/deborahk/deploying-a-dacpac-with-dacfx-api/
+            // https://stackoverflow.com/questions/10438258/using-microsoft-build-evaluation-to-publish-a-database-project-sqlproj
 
-				if (beforeDeploymentSuccess && !IsNullOrWhiteSpace(DacPacFolder) && !IsNullOrWhiteSpace(publishProfile.DatabaseName)) 
-				{
-					DeployDacPac(publishProfile);
+            string getMessage (DacMessage m) 
+            {
+                if (m.Number == 0) 
+                    return m.Message;
 
-				}
-			
-				if (RunsDirectly()) Console.ReadKey();
+                return $"{m.Number}: {m.Message}";
+            }
 
-			}
-
-			catch(Exception ex) 
-			{
-				ExitWithError(ex.Message);
-			}
-		}
-
-		private static void ExitWithError(string message) {
-			Console.WriteLine();
-			Console.WriteLine("DatabaseDeployer exited with the following error:");
-			Console.WriteLine(message);
-			Console.WriteLine();
-			
-			if (RunsDirectly()) {
-				
-				Console.WriteLine("Press any key...");
-				Console.ReadKey();
-			}
-			Environment.Exit(0);
-		}
-
-		private static bool RunsDirectly () {
-			return (Console.Title?.EndsWith("DeployDatabase.exe") == true);
-		}
-
-		
-
-
-		private static bool DatabaseExists(PublishProfile publishProfile)
-		{
-			using (SqlConnection conn = new SqlConnection(publishProfile.ConnectionString))
-			{
-				SqlCommand cmd = conn.CreateCommand();
-				cmd.CommandType = CommandType.Text;
-				cmd.CommandText = $"select case when db_id('{publishProfile.DatabaseName}') is null then 0 else 1 end";
-
-				conn.Open();
-
-				int result = (int)cmd.ExecuteScalar();
-				return result == 1;
-			}
-		}
-		
-
-		private static void AppendSqlCmdVariables(PublishProfile publishProfile)
-		{
-
-			if (IsNullOrWhiteSpace(publishProfile.BeforeDeploymentAbsoluteDirectory) || IsNullOrWhiteSpace(publishProfile.SqlCmdVariablesScriptName))
-				return;
-
-			var targetPath = Path.Combine(publishProfile.BeforeDeploymentAbsoluteDirectory, publishProfile.SqlCmdVariablesScriptName);
-
-			if (!File.Exists(targetPath))
-				ExitWithError($"SqlCmdVariablesScript file \"{targetPath}\" not found.");
-
-			var sb = new StringBuilder();
-
-			sb.AppendLine("-- The content of this file is autogenerated.")
-				.AppendLine($"-- The following SqlCmd variables were inserted from publish profile \"{Path.GetFileName(PublishProfileFile)}\".")
-				.AppendLine("-- Don't add anything here — the content will be completely renewed.")
-				.AppendLine();
-
-			
-			foreach (KeyValuePair<String, String> pair in publishProfile.SqlCmdVariables)
-			{
-				sb.AppendLine($":setvar {pair.Key} \"{pair.Value}\"");
-			}
-		
-			File.WriteAllText(targetPath, sb.ToString());
-		}
-
-
-		private static void DeployDacPac(PublishProfile publishProfile) 
-		{
-			// https://blogs.msmvps.com/deborahk/deploying-a-dacpac-with-dacfx-api/
-			// https://stackoverflow.com/questions/10438258/using-microsoft-build-evaluation-to-publish-a-database-project-sqlproj
-
-			string getMessage (DacMessage m) 
-			{
-				if (m.Number == 0) 
-					return m.Message;
-
-				return $"{m.Number}: {m.Message}";
-			}
-
-			var dacService = new DacServices(publishProfile.ConnectionString); 
-			dacService.Message += (s,e) => Console.WriteLine(getMessage(e.Message));
+            var dacService = new DacServices(publishProfile.ConnectionString); 
+            dacService.Message += (s,e) => Console.WriteLine(getMessage(e.Message));
             //dacService.ProgressChanged += (s,e) => Console.WriteLine($"{e.Status}: {e.Message}");
 
-			try 
+            try 
             { 
-				var dacPacPath = Path.Combine(DacPacFolder, $"{publishProfile.DatabaseName}.dacpac");
-
-
-                using (DacPackage dacpac = DacPackage.Load(dacPacPath)) 
-                { 
-					//Console.WriteLine("Preparing Deployment Report:");
-					//Console.WriteLine();
-					//Console.Write(dacService.GenerateDeployReport(dacpac, DatabaseName, options: dacOptions)); 
-					//Console.WriteLine();
-
-					//Console.WriteLine("Preparing Deployment script:");
-					//Console.WriteLine();
-					//Console.Write(dacService.GenerateDeployScript(dacpac, DatabaseName, options: dacOptions)); 
-					//Console.WriteLine();
-
-					Console.WriteLine("Start of deployment:");
-					Console.WriteLine();
+                using (DacPackage dacpac = DacPackage.Load(dacPacFile)) 
+                {
+                    Console.WriteLine("Start of DAC deployment:");
+                    Console.WriteLine();
 
                     dacService.Deploy(dacpac, publishProfile.DatabaseName, upgradeExisting: true, options: publishProfile.DacDeployOptions); 
                 }
 
-				Console.WriteLine();
-				Console.WriteLine("DeployDacPac SUCCESS!!!");
+                Console.WriteLine();
+                Console.WriteLine("DeployDacPac SUCCESS!!!");
 
             } 
             catch (Exception ex) 
             { 
                 //success = false; 
                 //MessageList.Add(ex.Message); 
-				Console.WriteLine();
-				Console.WriteLine("DeployDacPac FAIL!!!");
-				Console.WriteLine("The exception is:");
-				Console.WriteLine(ex.Message);
+                Console.WriteLine();
+                Console.WriteLine("DeployDacPac FAIL!!!");
+                Console.WriteLine("The exception is:");
+                Console.WriteLine(ex.Message);
             }
-			
-		}
+            
+        }
 
-	}
+        private static void ExitWithError(string message) {
+            Console.WriteLine();
+            Console.WriteLine("DatabaseDeployer exited with the following error:");
+            Console.WriteLine(message);
+            Console.WriteLine();
+            
+            if (RunsDirectly()) {
+                
+                Console.WriteLine("Press any key...");
+                Console.ReadKey();
+            }
+            Environment.Exit(0);
+        }
+
+        private static bool RunsDirectly()
+        {
+            return (Console.Title?.EndsWith("DacDeployer.exe") == true);
+        }
+    }
 }
+
+
+//Console.WriteLine("Preparing Deployment Report:");
+//Console.WriteLine();
+//Console.Write(dacService.GenerateDeployReport(dacpac, DatabaseName, options: dacOptions)); 
+//Console.WriteLine();
+
+//Console.WriteLine("Preparing Deployment script:");
+//Console.WriteLine();
+//Console.Write(dacService.GenerateDeployScript(dacpac, DatabaseName, options: dacOptions)); 
+//Console.WriteLine();

@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2107A850-5DCE-44EA-86F9-FEF87E64AB33}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>DeployDatabase</RootNamespace>
-    <AssemblyName>DeployDatabase</AssemblyName>
+    <RootNamespace>DacDeployer</RootNamespace>
+    <AssemblyName>DacDeployer</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
