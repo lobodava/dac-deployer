@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>TestDb</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{6d19f2a5-b111-4fe6-bcf1-b95fa14c0bde}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>TestDb</RootNamespace>
+    <AssemblyName>TestDb</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="0. Before Deployment" />
+    <Folder Include="PublishProfiles" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="0. Before Deployment\_BeforeDeployment.script.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReadMe.txt" />
+    <None Include="PublishProfiles\Default.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Users.sql" />
+    <Build Include="Categories.sql" />
+    <None Include="0. Before Deployment\TestScript.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="0. Before Deployment\_SqlCmdVariables.script.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Build Include="Roles.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="PreDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <SqlCmdVariable Include="Param1">
+      <DefaultValue>
+      </DefaultValue>
+      <Value>$(SqlCmdVar__1)</Value>
+    </SqlCmdVariable>
+    <SqlCmdVariable Include="Param2">
+      <DefaultValue>
+      </DefaultValue>
+      <Value>$(SqlCmdVar__2)</Value>
+    </SqlCmdVariable>
+  </ItemGroup>
+  <!--<Target Name="BeforeBuild">
+    <Message Importance="High" Text="+++ Карамба +++ BeforeBuild +++" />
+  </Target>
+  <Target Name="AfterBuild">
+    <Message Importance="High" Text="+++ Карамба +++ AfterBuild +++" />
+  </Target>
+
+	<Target Name="BeforePublish">
+		<Message Importance="High" Text="+++ Before Publish +++ Before Publish +++" />
+	</Target>
+
+	<Target Name="BeforeSqlPublish" >
+		<Message Importance="High" Text="+++ Before MSDeployPublish +++" />
+	</Target>
+
+	<Target Name="Publish" DependsOnTargets="BeforeSqlPublish">
+		Exec Command="&quot;$(SolutionDir)DeployDatabase\bin\Debug\DeployDatabase.exe&quot; PublishProfileDirectory:"></Exec>
+	</Target>-->
+  <PropertyGroup>
+    <DacDeployerExe>"$(SolutionDir)DeployDatabase\bin\Debug\DacDeployer.exe"</DacDeployerExe>
+    <DacPacFile>/DacPacFile:"$(MSBuildProjectDirectory)\$(OutputPath)$(MSBuildProjectName).dacpac"</DacPacFile>
+    <PublishProfileFolder>/PublishProfileFolder:"$(MSBuildProjectDirectory)\PublishProfile"</PublishProfileFolder>
+    <!--<PublishProfileFile>/PublishProfileFile:"$(MSBuildProjectDirectory)\PublishProfile\Default.publish.xml"</PublishProfileFile>-->    
+    <BuildConfiguration>/BuildConfiguration:"$(Configuration)"</BuildConfiguration>
+    <BeforeDeploymentScript>/BeforeDeploymentScript:".\0. Before Deployment\_BeforeDeployment.script.sql"</BeforeDeploymentScript>
+    <SqlCmdVariablesScript>/SqlCmdVariablesScript:".\0. Before Deployment\_SqlCmdVariables.script.sql"</SqlCmdVariablesScript>
+    
+  </PropertyGroup>
+  <Target Name="AfterRebuild">
+    <Message Importance="High" Text="##### Execution of DacDeployer.exe on AfterRebuild event #####" />
+    <Exec Command="$(DacDeployerExe) $(DacPacFile) $(PublishProfileFolder) $(BuildConfiguration) $(BeforeDeploymentScript) $(SqlCmdVariablesScript)">
+    </Exec>
+  </Target>
+</Project>
