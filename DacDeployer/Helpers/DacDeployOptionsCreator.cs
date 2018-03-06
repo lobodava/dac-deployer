@@ -4,7 +4,7 @@ using System.Xml;
 using Microsoft.SqlServer.Dac;
 using static System.String;
 
-namespace DeployDatabase.Helpers
+namespace DacDeployer.Helpers
 {
 	public static class DacDeployOptionsCreator
 	{
@@ -133,7 +133,7 @@ namespace DeployDatabase.Helpers
 			//	DropObjectsNotInSource                     = GetOption(doc, ns, "DropObjectsNotInSource"				   ),
 			//	GenerateSmartDefaults                      = GetOption(doc, ns, "GenerateSmartDefaults"					   ),
 			//	CreateNewDatabase                          = GetOption(doc, ns, "CreateNewDatabase"						   ),
-			//	DeployDatabaseInSingleUserMode             = GetOption(doc, ns, "DeployDatabaseInSingleUserMode"		   ),
+			//	DacDeployerInSingleUserMode             = GetOption(doc, ns, "DacDeployerInSingleUserMode"		   ),
 			//	BackupDatabaseBeforeChanges                = GetOption(doc, ns, "BackupDatabaseBeforeChanges"			   ),
 			//	IgnoreAuthorizer                           = GetOption(doc, ns, "IgnoreAuthorizer"						   ),
 			//	IgnoreColumnCollation                      = GetOption(doc, ns, "IgnoreColumnCollation"					   ),
@@ -302,7 +302,7 @@ BlockOnPossibleDataLoss                    = GetOption(doc, ns, "BlockOnPossible
 DropObjectsNotInSource                     = GetOption(doc, ns, "DropObjectsNotInSource"				   ),
 GenerateSmartDefaults                      = GetOption(doc, ns, "GenerateSmartDefaults"					   ),
 CreateNewDatabase                          = GetOption(doc, ns, "CreateNewDatabase"						   ),
-DeployDatabaseInSingleUserMode             = GetOption(doc, ns, "DeployDatabaseInSingleUserMode"		   ),
+DacDeployerInSingleUserMode             = GetOption(doc, ns, "DacDeployerInSingleUserMode"		   ),
 BackupDatabaseBeforeChanges                = GetOption(doc, ns, "BackupDatabaseBeforeChanges"			   ),
 NoAlterStatementsToChangeCLRTypes          = GetOption(doc, ns, "NoAlterStatementsToChangeCLRTypes"		   ),
 DoNotDropAggregates                        = GetOption(doc, ns, "DoNotDropAggregates"					   ),
@@ -467,7 +467,7 @@ BlockOnPossibleDataLoss
 DropObjectsNotInSource
 GenerateSmartDefaults
 CreateNewDatabase
-DeployDatabaseInSingleUserMode
+DacDeployerInSingleUserMode
 BackupDatabaseBeforeChanges
 NoAlterStatementsToChangeCLRTypes
 DoNotDropAggregates

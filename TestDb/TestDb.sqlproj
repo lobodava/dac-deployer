@@ -96,37 +96,26 @@
       <Value>$(SqlCmdVar__2)</Value>
     </SqlCmdVariable>
   </ItemGroup>
-  <!--<Target Name="BeforeBuild">
-    <Message Importance="High" Text="+++ Карамба +++ BeforeBuild +++" />
-  </Target>
-  <Target Name="AfterBuild">
-    <Message Importance="High" Text="+++ Карамба +++ AfterBuild +++" />
-  </Target>
 
-	<Target Name="BeforePublish">
-		<Message Importance="High" Text="+++ Before Publish +++ Before Publish +++" />
-	</Target>
-
-	<Target Name="BeforeSqlPublish" >
-		<Message Importance="High" Text="+++ Before MSDeployPublish +++" />
-	</Target>
-
-	<Target Name="Publish" DependsOnTargets="BeforeSqlPublish">
-		Exec Command="&quot;$(SolutionDir)DeployDatabase\bin\Debug\DeployDatabase.exe&quot; PublishProfileDirectory:"></Exec>
-	</Target>-->
   <PropertyGroup>
-    <DacDeployerExe>"$(SolutionDir)DeployDatabase\bin\Debug\DacDeployer.exe"</DacDeployerExe>
+    <DacDeployerExe>"$(SolutionDir)DacDeployer\bin\Debug\DacDeployer.exe"</DacDeployerExe>
+    <CompileKey>/compile</CompileKey>
+    <DeployKey>/deploy</DeployKey>
     <DacPacFile>/DacPacFile:"$(MSBuildProjectDirectory)\$(OutputPath)$(MSBuildProjectName).dacpac"</DacPacFile>
-    <PublishProfileFolder>/PublishProfileFolder:"$(MSBuildProjectDirectory)\PublishProfile"</PublishProfileFolder>
-    <!--<PublishProfileFile>/PublishProfileFile:"$(MSBuildProjectDirectory)\PublishProfile\Default.publish.xml"</PublishProfileFile>-->    
+    <PublishProfileFolder>/PublishProfileFolder:"$(MSBuildProjectDirectory)\PublishProfiles"</PublishProfileFolder>
     <BuildConfiguration>/BuildConfiguration:"$(Configuration)"</BuildConfiguration>
     <BeforeDeploymentScript>/BeforeDeploymentScript:".\0. Before Deployment\_BeforeDeployment.script.sql"</BeforeDeploymentScript>
     <SqlCmdVariablesScript>/SqlCmdVariablesScript:".\0. Before Deployment\_SqlCmdVariables.script.sql"</SqlCmdVariablesScript>
-    
   </PropertyGroup>
-  <Target Name="AfterRebuild">
-    <Message Importance="High" Text="##### Execution of DacDeployer.exe on AfterRebuild event #####" />
-    <Exec Command="$(DacDeployerExe) $(DacPacFile) $(PublishProfileFolder) $(BuildConfiguration) $(BeforeDeploymentScript) $(SqlCmdVariablesScript)">
-    </Exec>
+
+  <Target Name="AfterBuild">
+    <Message Importance="High" Text="##### Execution of DacDeployer.exe with $(CompileKey) key on AfterBuild event #####" />
+    <Exec Command="$(DacDeployerExe) $(CompileKey) $(DacPacFile) $(PublishProfileFolder) $(BeforeDeploymentScript) $(SqlCmdVariablesScript)"></Exec>
   </Target>
+
+  <Target Name="AfterRebuild">
+    <Message Importance="High" Text="##### Execution of DacDeployer.exe with $(DeployKey) key on AfterRebuild event #####" />
+    <Exec Command="$(DacDeployerExe) $(DeployKey) $(DacPacFile) $(PublishProfileFolder) $(BuildConfiguration) $(BeforeDeploymentScript) $(SqlCmdVariablesScript)"></Exec>
+  </Target>
+  
 </Project>

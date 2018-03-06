@@ -6,7 +6,7 @@ using Microsoft.SqlServer.Dac;
 using static System.String;
 
 
-namespace DeployDatabase.Helpers
+namespace DacDeployer.Helpers
 {
 	public class PublishProfile
 	{
@@ -15,13 +15,9 @@ namespace DeployDatabase.Helpers
 		public string ConnectionString { get; private set; }
 		public string DatabaseName { get; private set; }
 		public string ServerName { get; private set; }
-		public string UserID { get; private set; }
+        public bool IntegratedSecurity { get; private set; }
+        public string UserID { get; private set; }
 		public string Password { get; private set; }
-		
-		//public string BeforeDeploymentAbsoluteDirectory { get; set; }
-		//public string BeforeDeploymentRelativeDirectory { get; private set; }
-		//public string BeforeDeploymentScriptName { get; private set; }
-		//public string SqlCmdVariablesScriptName { get; private set; }
 
 		public DacDeployOptions DacDeployOptions { get; private set; }
 
@@ -46,13 +42,16 @@ namespace DeployDatabase.Helpers
 
 			ReadPublishProfile(PublishProfileFile);
 
-            Console.WriteLine("PublishProfileFile properties:");
-            Console.WriteLine("------------------------------");
-            Console.WriteLine($"ConnectionString....{( this.ConnectionString == null ? "null" : $"\"{this.ConnectionString}\"")}");
-            Console.WriteLine($"DatabaseName........{    (this.DatabaseName == null ? "null" : $"\"{this.DatabaseName}\"")}");
-            Console.WriteLine($"ServerName..........{      (this.ServerName == null ? "null" : $"\"{this.ServerName}\"")}");
-            Console.WriteLine($"UserID..............{          (this.UserID == null ? "null" : $"\"{this.UserID}\"")}");
-            Console.WriteLine($"Password............{        (this.Password == null ? "null" : $"\"{this.Password}\"")}");
+            Console.WriteLine("PublishProfile properties:");
+            Console.WriteLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
+            Console.WriteLine($"ConnectionString:    {(ConnectionString == null ? "null" : $"\"{this.ConnectionString}\"")}");
+            Console.WriteLine($"DatabaseName:        {    (DatabaseName == null ? "null" : $"\"{this.DatabaseName}\"")}");
+            Console.WriteLine($"ServerName:          {      (ServerName == null ? "null" : $"\"{this.ServerName}\"")}");
+            Console.WriteLine($"IntegratedSecurity:  {      (IntegratedSecurity ? "True" : "Fasle")}");
+            Console.WriteLine($"UserID:              {          (UserID == null ? "null" : $"\"{this.UserID}\"")}");
+            Console.WriteLine($"Password:            {        (Password == null ? "null" : $"\"{this.Password}\"")}");
+            //Console.WriteLine("------------------------------------------------------------------------------------------");
+            Console.WriteLine();
             Console.WriteLine();
         }
 
@@ -76,7 +75,9 @@ namespace DeployDatabase.Helpers
 			if (IsNullOrWhiteSpace(ServerName))
 				throw new ArgumentException($"No Server name (DataSource) provided in TargetConnectionString property of publish profile {targetPublishProfileFile}. The node \"//Project/PropertyGroup/TargetConnectionString\" is empty or missed.");
 
-			if (!builder.IntegratedSecurity)
+            IntegratedSecurity = builder.IntegratedSecurity;
+
+            if (!IntegratedSecurity)
 			{
 				UserID = builder.UserID;
 				if (IsNullOrWhiteSpace(ServerName))
@@ -86,10 +87,6 @@ namespace DeployDatabase.Helpers
 				if (IsNullOrWhiteSpace(ServerName))
 					throw new ArgumentException($"No Password provided although the Integrated Security property of TargetConnectionString in publish profile \"{targetPublishProfileFile}\" set to \"false\"");
 			}
-
-			//BeforeDeploymentRelativeDirectory = PublishProfileXmlHelper.GetOptionalXmlNodeValue(doc, ns, "//ns:Project/ns:ItemGroup/ns:SqlCmdVariable[@Include='BeforeDeploymentRelativeDirectory']/ns:Value");
-			//BeforeDeploymentScriptName = PublishProfileXmlHelper.GetOptionalXmlNodeValue(doc, ns, "//ns:Project/ns:ItemGroup/ns:SqlCmdVariable[@Include='BeforeDeploymentScriptName']/ns:Value"); 
-			//SqlCmdVariablesScriptName = PublishProfileXmlHelper.GetOptionalXmlNodeValue(doc, ns, "//ns:Project/ns:ItemGroup/ns:SqlCmdVariable[@Include='SqlCmdVariablesScriptName']/ns:Value"); 
 
 			DacDeployOptions = DacDeployOptionsCreator.CreateDacDeployOptions(doc, ns);
 		}

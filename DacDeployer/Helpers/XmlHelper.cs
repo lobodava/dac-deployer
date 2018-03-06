@@ -2,7 +2,7 @@
 using System.Xml;
 using static System.String;
 
-namespace DeployDatabase.Helpers
+namespace DacDeployer.Helpers
 {
 	public static class PublishProfileXmlHelper
 	{

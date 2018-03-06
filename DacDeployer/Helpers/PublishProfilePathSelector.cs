@@ -2,7 +2,7 @@
 using System.IO;
 using static System.String;
 
-namespace DeployDatabase.Helpers
+namespace DacDeployer.Helpers
 {
 	public static class PublishProfileFileSelector
 	{
