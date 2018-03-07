@@ -99,8 +99,7 @@
 
   <PropertyGroup>
     <DacDeployerExe>"$(SolutionDir)DacDeployer\bin\Debug\DacDeployer.exe"</DacDeployerExe>
-    <CompileKey>/compile</CompileKey>
-    <DeployKey>/deploy</DeployKey>
+    <CompilationFolder>/CompilationFolder:"$(MSBuildProjectDirectory)\bin\DacDeploy"</CompilationFolder>
     <DacPacFile>/DacPacFile:"$(MSBuildProjectDirectory)\$(OutputPath)$(MSBuildProjectName).dacpac"</DacPacFile>
     <PublishProfileFolder>/PublishProfileFolder:"$(MSBuildProjectDirectory)\PublishProfiles"</PublishProfileFolder>
     <BuildConfiguration>/BuildConfiguration:"$(Configuration)"</BuildConfiguration>
@@ -109,13 +108,17 @@
   </PropertyGroup>
 
   <Target Name="AfterBuild">
-    <Message Importance="High" Text="##### Execution of DacDeployer.exe with $(CompileKey) key on AfterBuild event #####" />
-    <Exec Command="$(DacDeployerExe) $(CompileKey) $(DacPacFile) $(PublishProfileFolder) $(BeforeDeploymentScript) $(SqlCmdVariablesScript)"></Exec>
+    <Message Importance="High" Text=" " />
+    <Message Importance="High" Text="Execution of DacDeployer.exe in COMPILE mode on AfterBuild event" />
+    <Message Importance="High" Text=" " />
+    <Exec Command="$(DacDeployerExe) /compile $(CompilationFolder) $(DacPacFile) $(PublishProfileFolder) $(BeforeDeploymentScript) $(SqlCmdVariablesScript)"></Exec>
   </Target>
 
   <Target Name="AfterRebuild">
-    <Message Importance="High" Text="##### Execution of DacDeployer.exe with $(DeployKey) key on AfterRebuild event #####" />
-    <Exec Command="$(DacDeployerExe) $(DeployKey) $(DacPacFile) $(PublishProfileFolder) $(BuildConfiguration) $(BeforeDeploymentScript) $(SqlCmdVariablesScript)"></Exec>
+    <Message Importance="High" Text=" " />
+    <Message Importance="High" Text="Execution of DacDeployer.exe in DEPLOY mode on AfterRebuild event" />
+    <Message Importance="High" Text=" " />
+    <Exec Command="$(DacDeployerExe) /deploy $(DacPacFile) $(PublishProfileFolder) $(BuildConfiguration) $(BeforeDeploymentScript) $(SqlCmdVariablesScript)"></Exec>
   </Target>
   
 </Project>

@@ -78,31 +78,31 @@ namespace DacDeployer.Helpers
             }
 
             var dacService = new DacServices(publishProfile.ConnectionString);
-            dacService.Message += (s, e) => Console.WriteLine(getMessage(e.Message));
-            //dacService.ProgressChanged += (s,e) => Console.WriteLine($"{e.Status}: {e.Message}");
+            dacService.Message += (s, e) => Logger.AppendLine(getMessage(e.Message));
+            //dacService.ProgressChanged += (s,e) => Logger.AppendLine($"{e.Status}: {e.Message}");
 
             try
             {
                 using (DacPackage dacpac = DacPackage.Load(dacPacFile))
                 {
-                    Console.WriteLine("Start of DAC deployment:");
-                    Console.WriteLine();
+                    Logger.AppendLine("Start of DAC deployment:");
+                    Logger.AppendEmptyLine();
 
                     dacService.Deploy(dacpac, publishProfile.DatabaseName, upgradeExisting: true, options: publishProfile.DacDeployOptions);
                 }
 
-                Console.WriteLine();
-                Console.WriteLine("DeployDacPac SUCCESS!!!");
+                Logger.AppendEmptyLine();
+                Logger.AppendLine("DeployDacPac SUCCESS!!!");
 
             }
             catch (Exception ex)
             {
                 //success = false; 
                 //MessageList.Add(ex.Message); 
-                Console.WriteLine();
-                Console.WriteLine("DeployDacPac FAIL!!!");
-                Console.WriteLine("The exception is:");
-                Console.WriteLine(ex.Message);
+                Logger.AppendEmptyLine();
+                Logger.AppendLine("DeployDacPac FAIL!!!");
+                Logger.AppendLine("The exception is:");
+                Logger.AppendLine(ex.Message);
             }
 
         }

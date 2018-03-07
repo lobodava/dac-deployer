@@ -11,13 +11,13 @@ namespace DacDeployer.Helpers
         private const string DacPacFolderName = "DacPac";
         private const string PublishProfilesFolderName = "PublishProfiles";
 
-
-
         public static void CreateOrClearCompilationFolder(string compilationFolderPath)
         {
             if (!Directory.Exists(compilationFolderPath))
             {
                 Directory.CreateDirectory(compilationFolderPath);
+
+                Logger.AppendLine($"CompilationFolder created on \"{compilationFolderPath}\"");
             }
             else
             {
@@ -28,6 +28,8 @@ namespace DacDeployer.Helpers
 
                 foreach (DirectoryInfo dir in di.GetDirectories())
                     dir.Delete(true);
+
+                Logger.AppendLine($"CompilationFolder cleared on \"{compilationFolderPath}\"");
             }
         }
         
@@ -40,6 +42,8 @@ namespace DacDeployer.Helpers
 
             foreach (var filePath in Directory.GetFiles(sourceDacDeployerFolder))
                 File.Copy(filePath, filePath.Replace(sourceDacDeployerFolder, targetDacDeployerFolder));
+
+            Logger.AppendLine($"DacDeployer copied to \"{targetDacDeployerFolder}\"");
         }
 
         public static void CopyDacPac(string compilationFolderPath, string dacPacFolderPath)
@@ -52,6 +56,8 @@ namespace DacDeployer.Helpers
 
             foreach (var filePath in Directory.GetFiles(dacPacFolderPath, "*.*", SearchOption.AllDirectories))
                 File.Copy(filePath, filePath.Replace(dacPacFolderPath, targetDacPacFolder), true);
+
+            Logger.AppendLine($"DacPac copied to \"{targetDacPacFolder}\"");
         }
 
         public static void CopyPublishProfiles(string compilationFolderPath, string publishProfileFolderPath)
@@ -61,6 +67,8 @@ namespace DacDeployer.Helpers
 
             foreach (var filePath in Directory.GetFiles(publishProfileFolderPath, "*publish.xml"))
                 File.Copy(filePath, filePath.Replace(publishProfileFolderPath, targetPublishProfileFolder));
+
+            Logger.AppendLine($"Publish Profiles copied to \"{targetPublishProfileFolder}\"");
         }
 
 
@@ -69,11 +77,14 @@ namespace DacDeployer.Helpers
             var publishProfileFolder = Path.Combine(compilationFolderPath, PublishProfilesFolderName);
             var dacPacFileName = Path.GetFileName(dacPacFilePath);
 
+            var batFileCount = 0;
+
             foreach (var filePath in Directory.GetFiles(publishProfileFolder, "*publish.xml"))
             {
                 var publishProfileFileName = Path.GetFileName(filePath);
 
                 var sb = new StringBuilder($"\"%~dp0{DacDeployerFolderName}\\DacDeployer.exe\" ")
+                    .Append("/deploy ")
                     .Append($"/DacPacFile:\"%~dp0{DacPacFolderName}\\{dacPacFileName}\" ")
                     .Append($"/PublishProfileFile:\"%~dp0{PublishProfilesFolderName}\\{publishProfileFileName}\" ");
 
@@ -83,12 +94,21 @@ namespace DacDeployer.Helpers
                 if (!IsNullOrWhiteSpace(sqlCmdVariablesScriptPath))
                     sb.Append($"/SqlCmdVariablesScript:\"%~dp0{DacPacFolderName}\\{sqlCmdVariablesScriptPath}\" ");
 
-                var batFileName = Regex.Replace(publishProfileFileName, "[.]publish[.]xml", ".publish.bat", RegexOptions.IgnoreCase);
+                var logFileName = Regex.Replace(publishProfileFileName, "[.]publish[.]xml", ".log.txt", RegexOptions.IgnoreCase);
+                var logFilePath = Path.Combine(compilationFolderPath, logFileName);
+                
+                sb.AppendLine().AppendLine($"rem /LogFile:\"{logFilePath}\" ");
 
+                var batFileName = Regex.Replace(publishProfileFileName, "[.]publish[.]xml", ".publish.bat", RegexOptions.IgnoreCase);
                 var batFilePath = Path.Combine(compilationFolderPath, batFileName);
 
                 File.WriteAllText(batFilePath, sb.ToString());
+
+                batFileCount++;
             }
+
+            Logger.AppendLine($"Bat files in quantity of {batFileCount} created in \"{compilationFolderPath}\"");
+
         }
 
 

@@ -65,6 +65,7 @@
     <Compile Include="Helpers\DacDeployOptionsCreator.cs" />
     <Compile Include="Helpers\CompilationSteps.cs" />
     <Compile Include="Helpers\DeploymentSteps.cs" />
+    <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\ModeDefiner.cs" />
     <Compile Include="Helpers\PathResolver.cs" />
     <Compile Include="Helpers\XmlHelper.cs" />

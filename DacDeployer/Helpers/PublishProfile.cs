@@ -33,8 +33,6 @@ namespace DacDeployer.Helpers
 				return sqlCmdVariables.Union(DacDeployOptions.SqlCommandVariableValues).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 			}
 		}
-			
-			
 
 		public PublishProfile (string PublishProfileFile) {
 
@@ -42,17 +40,7 @@ namespace DacDeployer.Helpers
 
 			ReadPublishProfile(PublishProfileFile);
 
-            Console.WriteLine("PublishProfile properties:");
-            Console.WriteLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-            Console.WriteLine($"ConnectionString:    {(ConnectionString == null ? "null" : $"\"{this.ConnectionString}\"")}");
-            Console.WriteLine($"DatabaseName:        {    (DatabaseName == null ? "null" : $"\"{this.DatabaseName}\"")}");
-            Console.WriteLine($"ServerName:          {      (ServerName == null ? "null" : $"\"{this.ServerName}\"")}");
-            Console.WriteLine($"IntegratedSecurity:  {      (IntegratedSecurity ? "True" : "Fasle")}");
-            Console.WriteLine($"UserID:              {          (UserID == null ? "null" : $"\"{this.UserID}\"")}");
-            Console.WriteLine($"Password:            {        (Password == null ? "null" : $"\"{this.Password}\"")}");
-            //Console.WriteLine("------------------------------------------------------------------------------------------");
-            Console.WriteLine();
-            Console.WriteLine();
+            Logger.LogParsedPublishProfile(this);
         }
 
 		private void ReadPublishProfile(string targetPublishProfileFile) 

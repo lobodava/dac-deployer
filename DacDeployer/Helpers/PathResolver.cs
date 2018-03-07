@@ -13,7 +13,7 @@ namespace DacDeployer.Helpers
             if (!File.Exists(dacPacFile))
                 throw new FileNotFoundException($"The DacPac file is not found on the path provided with \"DacPacFile\" console application argument: \"{dacPacFile}\".");
 
-            string dacPacFolder = Path.GetDirectoryName(dacPacFile);
+            var dacPacFolder = Path.GetDirectoryName(dacPacFile);
 
             return (dacPacFolder, dacPacFile);
         }
@@ -34,20 +34,9 @@ namespace DacDeployer.Helpers
             var publishProfileFile = ConsoleAppArgsParser.GetParamValue("PublishProfileFile");
             var buildConfiguration = ConsoleAppArgsParser.GetParamValue("BuildConfiguration");
 
-            Console.WriteLine("PublishProfile paths:");
-            Console.WriteLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-            Console.WriteLine($"PublishProfileFolder:         \"{publishProfileFolder}\"");
-            Console.WriteLine($"PublishProfileFile:           {(publishProfileFile == null ? "null" : $"\"{publishProfileFile}\"")}");
-            Console.WriteLine($"BuildConfiguration:           {(buildConfiguration == null ? "null" : $"\"{buildConfiguration}\"")}");
+            var chosenPublishProfileFile = PublishProfileFileSelector.GetPublishProfileFile(publishProfileFolder, publishProfileFile, Environment.MachineName, buildConfiguration);
 
-            publishProfileFile = PublishProfileFileSelector.GetPublishProfileFile(publishProfileFolder, publishProfileFile, Environment.MachineName, buildConfiguration);
-
-            Console.WriteLine($"Choisen PublishProfileFile:  \"{publishProfileFile}\"");
-            //Console.WriteLine("------------------------------------------------------------------------------------------");
-            Console.WriteLine();
-            Console.WriteLine();
-
-            return (publishProfileFolder, publishProfileFile);
+            return (publishProfileFolder, chosenPublishProfileFile);
         }
 
         public static (string beforeDeploymentScript, string sqlCmdVariablesScript) GetBeforeDeploymentPaths(string dacPacFolder = null)
@@ -72,25 +61,13 @@ namespace DacDeployer.Helpers
                     throw new FileNotFoundException($"The SqlCmdVariablesScript file is not found on the path provided with \"SqlCmdVariablesScript\" console application argument: \"{sqlCmdVariablesScript}\".");
             }
 
-            Console.WriteLine("BeforeDeployment paths:");
-            Console.WriteLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-            Console.WriteLine($"BeforeDeploymentScript:  {(beforeDeploymentScript == null ? "null" : $"\"{beforeDeploymentScript}\"")}");
-            Console.WriteLine($"SqlCmdVariablesScript:   {(sqlCmdVariablesScript == null ? "null" : $"\"{sqlCmdVariablesScript}\"")}");
-            //Console.WriteLine("------------------------------------------------------------------------------------------");
-            Console.WriteLine();
-            Console.WriteLine();
-
             return (beforeDeploymentScript, sqlCmdVariablesScript);
         }
 
         public static string GetCompilationFolderPath()
         {
-            /*var compilationFolder = ConsoleAppArgsParser.GetParamValue("CompilationFolder", true);*/
-            return @"C:\Current Projects\DacDeployer\TestDb\bin\DacDeploy";
+            return ConsoleAppArgsParser.GetParamValue("CompilationFolder", true);
         }
-
-
-
     }
 
 }
