@@ -15,7 +15,7 @@ namespace DacDeployer.Helpers
         private static readonly StringBuilder LogBuffer;
         private static readonly Mode ExecutionMode ;
         public static bool IsQuiet;
-        private static string DeviderLine = "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -";
+        private static string DividerLine = "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -";
 
         static Logger () 
         {
@@ -69,7 +69,7 @@ namespace DacDeployer.Helpers
             var messageSb = new StringBuilder();
 
             messageSb.AppendLine("Console arguments passed");
-            messageSb.AppendLine(DeviderLine);
+            messageSb.AppendLine(DividerLine);
 
             var nameAndGapLength = "BeforeDeploymentScript".Length + 2;
 
@@ -104,7 +104,7 @@ namespace DacDeployer.Helpers
             var messageSb = new StringBuilder();
 
             messageSb.AppendLine("Resolved and confirmed paths");
-            messageSb.AppendLine(DeviderLine);
+            messageSb.AppendLine(DividerLine);
 
             var nameAndGapLength = "BeforeDeploymentScriptPath".Length + 2;
             
@@ -130,7 +130,7 @@ namespace DacDeployer.Helpers
             var messageSb = new StringBuilder();
 
             messageSb.AppendLine("PublishProfile parsed properties");
-            messageSb.AppendLine(DeviderLine);
+            messageSb.AppendLine(DividerLine);
             
             var nameAndGapLength = "IntegratedSecurity".Length + 2;
 

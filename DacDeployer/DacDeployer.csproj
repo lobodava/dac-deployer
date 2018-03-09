@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\HelpInfo.cs" />
     <Compile Include="Helpers\ConsoleAppArgsParser.cs" />
     <Compile Include="Helpers\DacDeployOptionsCreator.cs" />
     <Compile Include="Helpers\CompilationSteps.cs" />

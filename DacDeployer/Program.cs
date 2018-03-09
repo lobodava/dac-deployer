@@ -14,6 +14,12 @@ namespace DacDeployer
 
             Logger.AppendLine($"Dac Deployer started in {mode.ToString().ToUpper()} mode!"); //Console.Title = {Console.Title}
             Logger.AppendEmptyLine();
+            
+            if (mode == Mode.Help) {
+                HelpInfo.Help();
+                PressAnyKey();
+                Environment.Exit(0);
+            }
 
             Logger.LogConsoleArguments();
 
@@ -73,6 +79,11 @@ namespace DacDeployer
 
             Logger.OutputLogToFile();
 
+            PressAnyKey();
+        }
+
+        private static void PressAnyKey()
+        {
             if (RunsDirectly())
             {
                 Console.WriteLine();
@@ -80,6 +91,8 @@ namespace DacDeployer
                 Console.ReadKey();
             }
         }
+
+
 
         private static bool RunsDirectly()
         {
