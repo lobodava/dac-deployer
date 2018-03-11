@@ -14,16 +14,19 @@ namespace DacDeployer
 
             Logger.AppendLine($"DacDeployer is started in {mode.ToString().ToUpper()} mode!"); //Console.Title = {Console.Title}
             Logger.AppendEmptyLine();
-            
-            if (mode == Mode.Help) {
+
+            if (mode == Mode.Help)
+            {
                 HelpInfo.Help();
-                PressAnyKey();
+
+                PressAnyKey(mode);
+
                 Environment.Exit(0);
             }
 
             Logger.LogConsoleArguments();
 
-            try 
+            try
             {
                 (var dacPacFolderPath, var dacPacFilePath) = PathResolver.GetDacPacPaths();
 
@@ -66,14 +69,14 @@ namespace DacDeployer
 
                     if (DeploymentSteps.ExecuteBeforeDeployment(beforeDeploymentScriptPath, publishProfile))
                     {
-                       DeploymentSteps.DeployDacPac(dacPacFilePath, publishProfile);
+                        DeploymentSteps.DeployDacPac(dacPacFilePath, publishProfile);
 
-                       Logger.AppendEmptyLine();
-                       Logger.AppendLine("DacDeployer has completed deployment.");
+                        Logger.AppendEmptyLine();
+                        Logger.AppendLine("DacDeployer has completed deployment.");
                     }
                 }
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 Logger.AppendEmptyLine();
                 Logger.AppendLine("DacDeployer.exe exited with the following error:");
@@ -83,20 +86,26 @@ namespace DacDeployer
 
             Logger.OutputLogToFile();
 
-            PressAnyKey();
+            PressAnyKey(mode);
         }
 
-        private static void PressAnyKey()
+
+        private static void PressAnyKey(Mode mode)
         {
             if (RunsDirectly())
             {
                 Console.WriteLine();
-                Console.WriteLine("Press any key...");
+
+                if (mode == Mode.Help)
+                    Console.WriteLine("Read info above and press any key...");
+                else
+                    Console.WriteLine("Press any key...");
+
                 Console.ReadKey();
             }
         }
 
-
+        
 
         private static bool RunsDirectly()
         {
