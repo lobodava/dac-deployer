@@ -20,8 +20,7 @@ namespace DacDeployer.Helpers
 				if (File.Exists(PublishProfileFile))
 					return PublishProfileFile;
 
-				//if (IsEmpty(PublishProfileFolder))
-					throw new FileNotFoundException($"The publish profile file is not found on the path provided with \"PublishProfileFile\" console application argument: \"{PublishProfileFile}\".");
+				throw new FileNotFoundException($"The publish profile file is not found on the path provided with \"PublishProfileFile\" console application argument: \"{PublishProfileFile}\".");
 			}
 
 			string tryPublishProfileFile;

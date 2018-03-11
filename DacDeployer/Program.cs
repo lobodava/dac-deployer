@@ -12,7 +12,7 @@ namespace DacDeployer
             if (!RunsDirectly())
                 Logger.AppendEmptyLine();
 
-            Logger.AppendLine($"Dac Deployer started in {mode.ToString().ToUpper()} mode!"); //Console.Title = {Console.Title}
+            Logger.AppendLine($"DacDeployer is started in {mode.ToString().ToUpper()} mode!"); //Console.Title = {Console.Title}
             Logger.AppendEmptyLine();
             
             if (mode == Mode.Help) {
@@ -33,11 +33,12 @@ namespace DacDeployer
                 {
                     var compilationFolderPath = PathResolver.GetCompilationFolderPath();
 
-                    (var beforeDeploymentScriptPath, var sqlCmdVariablesScriptPath) = PathResolver.GetBeforeDeploymentPaths();
+                    var beforeDeploymentScriptPath = PathResolver.GetBeforeDeploymentPath();
 
-                    Logger.LogResolvedPaths(dacPacFolderPath, dacPacFilePath, publishProfileFolderPath, publishProfileFilePath, beforeDeploymentScriptPath, sqlCmdVariablesScriptPath);
+                    Logger.LogResolvedPaths(dacPacFolderPath, dacPacFilePath, publishProfileFolderPath, publishProfileFilePath, beforeDeploymentScriptPath);
 
-                    Logger.AppendLine("DacDeployer: complialation started");
+                    Logger.AppendLine("DacDeployer has started compilation:");
+                    Logger.AppendDividerLine();
 
                     CompilationSteps.CreateOrClearCompilationFolder(compilationFolderPath);
 
@@ -47,26 +48,29 @@ namespace DacDeployer
 
                     CompilationSteps.CopyPublishProfiles(compilationFolderPath, publishProfileFolderPath);
 
-                    CompilationSteps.CreateBatFiles(compilationFolderPath, dacPacFilePath, beforeDeploymentScriptPath, sqlCmdVariablesScriptPath);
+                    CompilationSteps.CreateBatFiles(compilationFolderPath, dacPacFilePath, beforeDeploymentScriptPath);
 
-                    Logger.AppendLine("DacDeployer: complialation completed");
+                    Logger.AppendEmptyLine();
+                    Logger.AppendLine("DacDeployer has completed compilation.");
                 }
                 else if (mode == Mode.Deploy)
                 {
                     var publishProfile = new PublishProfile(publishProfileFilePath);
 
-                    (var beforeDeploymentScriptPath, var sqlCmdVariablesScriptPath) = PathResolver.GetBeforeDeploymentPaths(dacPacFolderPath);
+                    var beforeDeploymentScriptPath = PathResolver.GetBeforeDeploymentPath(dacPacFolderPath);
 
-                    Logger.LogResolvedPaths(dacPacFolderPath, dacPacFilePath, publishProfileFolderPath, publishProfileFilePath, beforeDeploymentScriptPath, sqlCmdVariablesScriptPath);
+                    Logger.LogResolvedPaths(dacPacFolderPath, dacPacFilePath, publishProfileFolderPath, publishProfileFilePath, beforeDeploymentScriptPath);
 
-                    Logger.AppendLine("DacDeployer: deployment started");
-
-                    DeploymentSteps.AppendSqlCmdVariables(sqlCmdVariablesScriptPath, publishProfile);
+                    Logger.AppendLine("DacDeployer has started deployment:");
+                    Logger.AppendEmptyLine();
 
                     if (DeploymentSteps.ExecuteBeforeDeployment(beforeDeploymentScriptPath, publishProfile))
-                        DeploymentSteps.DeployDacPac(dacPacFilePath, publishProfile);
+                    {
+                       DeploymentSteps.DeployDacPac(dacPacFilePath, publishProfile);
 
-                    Logger.AppendLine("DacDeployer: deployment completed");
+                       Logger.AppendEmptyLine();
+                       Logger.AppendLine("DacDeployer has completed deployment.");
+                    }
                 }
             }
             catch(Exception ex) 

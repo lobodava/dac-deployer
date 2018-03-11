@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using static System.String;
@@ -10,9 +10,9 @@ namespace DacDeployer.Helpers
 		// --http://csharptest.net/532/using-processstart-to-capture-console-output/
 		// --http://social.msdn.microsoft.com/Forums/vstudio/en-US/8652fae3-819a-4cde-8cc2-70d45c15087c/vs2005-addin-write-asynchronous-output-from-batch-to-outputwindowpane?forum=vsx
 
-		public static bool StartProcess(string workingDirectory, string fileName, string[] arguments, string successMessage = null, string failMessage = null)
+		public static bool StartProcess(string workingDirectory, string fileName, IEnumerable<string> arguments)
 		{
-			var p = new System.Diagnostics.Process
+            var p = new Process
 			{
 				StartInfo = new ProcessStartInfo() 
 				{
@@ -30,9 +30,8 @@ namespace DacDeployer.Helpers
 				}
 			};
 
-			p.OutputDataReceived += (s, a) => Console.WriteLine(a.Data);// , workingDirectory);
-			//p.ErrorDataReceived += (s, a) => ErrorWriteLine(a.Data, workingDirectory);
-			p.ErrorDataReceived += (s, a) => Console.WriteLine(a.Data);// , workingDirectory);
+			p.OutputDataReceived += (s, a) => Logger.AppendLine(a.Data);// , workingDirectory);
+			p.ErrorDataReceived += (s, a) => Logger.AppendLine(a.Data);// , workingDirectory);
 
 			p.Start();
 
@@ -46,24 +45,8 @@ namespace DacDeployer.Helpers
 
 			p.Close();
 
-			if (exitCode == 0)
-			{
-				if (!String.IsNullOrWhiteSpace(successMessage))
-				{
-					Console.WriteLine(successMessage);
-				}
+            return exitCode == 0;
 
-				return true;
-			}
-
-			if (!String.IsNullOrWhiteSpace(failMessage))
-			{
-				Console.WriteLine(failMessage);
-				Console.WriteLine("All the rest operations were cancelled.");
-				Console.WriteLine("Database deploy failed. See Visual Studio Output Window for details.");
-			}
-
-			return false;
 		}
 
 	}

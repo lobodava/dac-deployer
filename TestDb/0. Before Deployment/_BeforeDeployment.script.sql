@@ -3,8 +3,8 @@ SET QUOTED_IDENTIFIER ON
 GO
 -- SQLCMD Mode - http://msdn.microsoft.com/ru-ru/library/vstudio/aa833281(v=vs.100).aspx
 
-:R "_SqlCmdVariables.script.sql"
-GO
+--:R "_SqlCmdVariables.script.sql"
+--GO
 
 use [$(DatabaseName)];
 print 'OK'

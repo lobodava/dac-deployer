@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using static System.String;
@@ -40,7 +41,8 @@ namespace DacDeployer.Helpers
 
             var sourceDacDeployerFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            foreach (var filePath in Directory.GetFiles(sourceDacDeployerFolder))
+            foreach (var filePath in Directory.GetFiles(sourceDacDeployerFolder, "*.*", SearchOption.TopDirectoryOnly)
+                                              .Where(s => s.EndsWith(".exe") || s.EndsWith(".dll") || s.EndsWith(".xml")))
                 File.Copy(filePath, filePath.Replace(sourceDacDeployerFolder, targetDacDeployerFolder));
 
             Logger.AppendLine($"DacDeployer copied to \"{targetDacDeployerFolder}\"");
@@ -72,7 +74,7 @@ namespace DacDeployer.Helpers
         }
 
 
-        public static void CreateBatFiles(string compilationFolderPath, string dacPacFilePath, string beforeDeploymentScriptPath, string sqlCmdVariablesScriptPath) 
+        public static void CreateBatFiles(string compilationFolderPath, string dacPacFilePath, string beforeDeploymentScriptPath) 
         {
             var publishProfileFolder = Path.Combine(compilationFolderPath, PublishProfilesFolderName);
             var dacPacFileName = Path.GetFileName(dacPacFilePath);
@@ -90,9 +92,6 @@ namespace DacDeployer.Helpers
 
                 if (!IsNullOrWhiteSpace(beforeDeploymentScriptPath))
                     sb.Append($"/BeforeDeploymentScript:\"%~dp0{DacPacFolderName}\\{beforeDeploymentScriptPath}\" ");
-                
-                if (!IsNullOrWhiteSpace(sqlCmdVariablesScriptPath))
-                    sb.Append($"/SqlCmdVariablesScript:\"%~dp0{DacPacFolderName}\\{sqlCmdVariablesScriptPath}\" ");
 
                 var logFileName = Regex.Replace(publishProfileFileName, "[.]publish[.]xml", ".log.txt", RegexOptions.IgnoreCase);
                 var logFilePath = Path.Combine(compilationFolderPath, logFileName);
@@ -110,11 +109,6 @@ namespace DacDeployer.Helpers
             Logger.AppendLine($"Bat files in quantity of {batFileCount} created in \"{compilationFolderPath}\"");
 
         }
-
-
-                    // For bat file
-                    // "%~dp0DacDeployer\DeployDatabase.exe" /PublishProfilePath:"%~dp0PublishProfiles\ALTAIR.Debug.publish.xml" /DacPacDirectory:"%~dp0DacPac"
-
 
     }
 }

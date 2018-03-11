@@ -73,9 +73,6 @@
     <None Include="0. Before Deployment\TestScript.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="0. Before Deployment\_SqlCmdVariables.script.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <Build Include="Roles.sql" />
   </ItemGroup>
   <ItemGroup>
@@ -96,7 +93,6 @@
       <Value>$(SqlCmdVar__2)</Value>
     </SqlCmdVariable>
   </ItemGroup>
-
   <PropertyGroup>
     <DacDeployerExe>"$(SolutionDir)DacDeployer\bin\Debug\DacDeployer.exe"</DacDeployerExe>
     <CompilationFolder>/CompilationFolder:"$(MSBuildProjectDirectory)\bin\DacDeploy"</CompilationFolder>
@@ -104,21 +100,17 @@
     <PublishProfileFolder>/PublishProfileFolder:"$(MSBuildProjectDirectory)\PublishProfiles"</PublishProfileFolder>
     <BuildConfiguration>/BuildConfiguration:"$(Configuration)"</BuildConfiguration>
     <BeforeDeploymentScript>/BeforeDeploymentScript:".\0. Before Deployment\_BeforeDeployment.script.sql"</BeforeDeploymentScript>
-    <SqlCmdVariablesScript>/SqlCmdVariablesScript:".\0. Before Deployment\_SqlCmdVariables.script.sql"</SqlCmdVariablesScript>
   </PropertyGroup>
-
   <Target Name="AfterBuild">
-    <Message Importance="High" Text=" " />
-    <Message Importance="High" Text="Execution of DacDeployer.exe in COMPILE mode on AfterBuild event" />
-    <Message Importance="High" Text=" " />
-    <Exec Command="$(DacDeployerExe) /compile $(CompilationFolder) $(DacPacFile) $(PublishProfileFolder) $(BeforeDeploymentScript) $(SqlCmdVariablesScript)"></Exec>
+    <Message Importance="High" Text="." />
+    <Message Importance="High" Text="Execution of DacDeployer.exe in COMPILE mode on AfterBuild event:" />
+    <Exec Command="$(DacDeployerExe) /compile $(CompilationFolder) $(DacPacFile) $(PublishProfileFolder) $(BeforeDeploymentScript)"></Exec>
+    <Message Importance="High" Text="." />
   </Target>
-
   <Target Name="AfterRebuild">
-    <Message Importance="High" Text=" " />
-    <Message Importance="High" Text="Execution of DacDeployer.exe in DEPLOY mode on AfterRebuild event" />
-    <Message Importance="High" Text=" " />
-    <Exec Command="$(DacDeployerExe) /deploy $(DacPacFile) $(PublishProfileFolder) $(BuildConfiguration) $(BeforeDeploymentScript) $(SqlCmdVariablesScript)"></Exec>
+    <Message Importance="High" Text="." />
+    <Message Importance="High" Text="Execution of DacDeployer.exe in DEPLOY mode on AfterRebuild event:" />
+    <Exec Command="$(DacDeployerExe) /deploy $(DacPacFile) $(PublishProfileFolder) $(BuildConfiguration) $(BeforeDeploymentScript)"></Exec>
+    <Message Importance="High" Text="." />
   </Target>
-  
 </Project>

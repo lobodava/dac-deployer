@@ -43,11 +43,11 @@ namespace DacDeployer.Helpers
             Logger.LogParsedPublishProfile(this);
         }
 
-		private void ReadPublishProfile(string targetPublishProfileFile) 
+        private void ReadPublishProfile(string targetPublishProfileFile) 
 		{
-			(var doc, var ns) = PublishProfileXmlHelper.LoadPublishProfile(targetPublishProfileFile);
-			
-			DatabaseName = PublishProfileXmlHelper.GetRequiredXmlNodeValue(doc, ns, "//ns:Project/ns:PropertyGroup/ns:TargetDatabaseName");
+            var dacProfile = DacProfile.Load(targetPublishProfileFile);
+
+            DatabaseName = dacProfile.TargetDatabaseName;
 
 			if (IsNullOrWhiteSpace(DatabaseName)) 
 				throw new ArgumentException($"Database Name not found in publish profile \"{targetPublishProfileFile}\". The node \"//Project/PropertyGroup/TargetDatabaseName\" is empty or missed.");
@@ -55,7 +55,7 @@ namespace DacDeployer.Helpers
 			sqlCmdVariables.Add("DatabaseName", DatabaseName);
 
 
-			ConnectionString = PublishProfileXmlHelper.GetRequiredXmlNodeValue(doc, ns, "//ns:Project/ns:PropertyGroup/ns:TargetConnectionString");
+			ConnectionString = dacProfile.TargetConnectionString;
 			
 			var builder = new SqlConnectionStringBuilder(ConnectionString);
 
@@ -76,8 +76,7 @@ namespace DacDeployer.Helpers
 					throw new ArgumentException($"No Password provided although the Integrated Security property of TargetConnectionString in publish profile \"{targetPublishProfileFile}\" set to \"false\"");
 			}
 
-			DacDeployOptions = DacDeployOptionsCreator.CreateDacDeployOptions(doc, ns);
-		}
-
+			DacDeployOptions = dacProfile.DeployOptions;
+        }
 	}
 }

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using static System.String;
 
 namespace DacDeployer.Helpers
@@ -45,6 +42,15 @@ namespace DacDeployer.Helpers
                 Console.WriteLine(message);
         }
 
+        public static void AppendDividerLine()
+        {
+            LogBuffer?.AppendLine(DividerLine);
+
+            if (!IsQuiet)
+                Console.WriteLine(DividerLine);
+        }
+
+
         private static void AppendValueLine(StringBuilder messageSb, string name, string value, int nameAndGapLength)
         {
             messageSb.Append(name).Append(":").Append(new string(' ', nameAndGapLength - name.Length));
@@ -61,14 +67,14 @@ namespace DacDeployer.Helpers
 
         public static void AppendEmptyLine()
         {
-            AppendLine(" ");
+            AppendLine(".");
         }
 
         public static void LogConsoleArguments()
         {
             var messageSb = new StringBuilder();
 
-            messageSb.AppendLine("Console arguments passed");
+            messageSb.AppendLine("Console arguments passed:");
             messageSb.AppendLine(DividerLine);
 
             var nameAndGapLength = "BeforeDeploymentScript".Length + 2;
@@ -78,14 +84,13 @@ namespace DacDeployer.Helpers
             AppendValueLine(messageSb, "PublishProfileFile", ConsoleAppArgsParser.GetParamValue("PublishProfileFile"), nameAndGapLength);
             AppendValueLine(messageSb, "BuildConfiguration", ConsoleAppArgsParser.GetParamValue("BuildConfiguration"), nameAndGapLength);
             AppendValueLine(messageSb, "BeforeDeploymentScript", ConsoleAppArgsParser.GetParamValue("BeforeDeploymentScript"), nameAndGapLength);
-            AppendValueLine(messageSb, "SqlCmdVariablesScript", ConsoleAppArgsParser.GetParamValue("SqlCmdVariablesScript"), nameAndGapLength);
             AppendValueLine(messageSb, "CompilationFolder", ConsoleAppArgsParser.GetParamValue("CompilationFolder"), nameAndGapLength);
             AppendValueLine(messageSb, "Compile", ConsoleAppArgsParser.ParamExists("Compile") ? "True" : "False", nameAndGapLength);
             AppendValueLine(messageSb, "Deploy", ConsoleAppArgsParser.ParamExists("Deploy") ? "True" : "False", nameAndGapLength);
             AppendValueLine(messageSb, "Quiet", ConsoleAppArgsParser.ParamExists("Quiet") ? "True" : "False", nameAndGapLength);
             AppendValueLine(messageSb, "LogFile", ConsoleAppArgsParser.GetParamValue("LogFile"), nameAndGapLength);
 
-            messageSb.AppendLine(" ").AppendLine(" ");
+            messageSb.AppendLine(".");
 
             Logger.Append(messageSb.ToString());
         }
@@ -95,15 +100,14 @@ namespace DacDeployer.Helpers
             string dacPacFilePath = null,
             string publishProfileFolderPath = null,
             string publishProfileFilePath = null,
-            string beforeDeploymentScriptPath = null,
-            string sqlCmdVariablesScriptPath = null
+            string beforeDeploymentScriptPath = null
         )
         {
             string dacDeployerExeFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
             var messageSb = new StringBuilder();
 
-            messageSb.AppendLine("Resolved and confirmed paths");
+            messageSb.AppendLine("Resolved and confirmed paths:");
             messageSb.AppendLine(DividerLine);
 
             var nameAndGapLength = "BeforeDeploymentScriptPath".Length + 2;
@@ -117,10 +121,9 @@ namespace DacDeployer.Helpers
             {
                 AppendValueLine(messageSb, "PublishProfileFilePath", publishProfileFilePath, nameAndGapLength);
                 AppendValueLine(messageSb, "BeforeDeploymentScriptPath", beforeDeploymentScriptPath, nameAndGapLength);
-                AppendValueLine(messageSb, "sqlCmdVariablesScriptPath", sqlCmdVariablesScriptPath, nameAndGapLength);
             }
 
-            messageSb.AppendLine(" ").AppendLine(" ");
+            messageSb.AppendLine(".");
 
             Logger.Append(messageSb.ToString());
         }
@@ -129,7 +132,7 @@ namespace DacDeployer.Helpers
         {
             var messageSb = new StringBuilder();
 
-            messageSb.AppendLine("PublishProfile parsed properties");
+            messageSb.AppendLine("PublishProfile parsed properties:");
             messageSb.AppendLine(DividerLine);
             
             var nameAndGapLength = "IntegratedSecurity".Length + 2;
@@ -141,7 +144,7 @@ namespace DacDeployer.Helpers
             AppendValueLine(messageSb, "UserID", publishProfile.UserID, nameAndGapLength);
             AppendValueLine(messageSb, "Password", publishProfile.Password, nameAndGapLength);
 
-            messageSb.AppendLine(" ").AppendLine(" ");
+            messageSb.AppendLine(".");
 
             Logger.Append(messageSb.ToString());
         }
@@ -170,40 +173,3 @@ namespace DacDeployer.Helpers
         }
     }
 }
-
-        //public static void LogPublishProfilePaths (string publishProfileFolder, string publishProfileFile, string buildConfiguration, string chosenPublishProfileFile) 
-        //{
-        //    //var messageSb = new StringBuilder();
-
-        //    //messageSb.AppendLine("PublishProfile paths");
-        //    //messageSb.AppendLine(DeviderLine);
-
-        //    //messageSb.AppendLine($"PublishProfileFolder:       \"{publishProfileFolder}\"");
-           
-        //    //if (ExecutionMode == Mode.Deploy)
-        //    //{
-        //    //    messageSb.AppendLine($"PublishProfileFile:         {(publishProfileFile == null ? "null" : $"\"{publishProfileFile}\"")}");
-        //    //    messageSb.AppendLine($"BuildConfiguration:         {(buildConfiguration == null ? "null" : $"\"{buildConfiguration}\"")}");
-
-        //    //    messageSb.AppendLine($"Chosen PublishProfileFile:  \"{chosenPublishProfileFile}\"");
-        //    //}
-
-        //    //messageSb.AppendLine(" ").AppendLine(" ");
-
-        //    //LogMessage(messageSb.ToString());
-        //}
-
-        //public static void LogBeforeDeploymentPaths(string beforeDeploymentScript, string sqlCmdVariablesScript)
-        //{
-        //    //var messageSb = new StringBuilder();
-
-        //    //messageSb.AppendLine("BeforeDeployment paths");
-        //    //messageSb.AppendLine(DeviderLine);
-
-        //    //messageSb.AppendLine($"BeforeDeploymentScript:  {(beforeDeploymentScript == null ? "null" : $"\"{beforeDeploymentScript}\"")}");
-        //    //messageSb.AppendLine($"SqlCmdVariablesScript:   {(sqlCmdVariablesScript == null ? "null" : $"\"{sqlCmdVariablesScript}\"")}");
-
-        //    //messageSb.AppendLine(" ").AppendLine(" ");
-
-        //    //LogMessage(messageSb.ToString());
-        //}

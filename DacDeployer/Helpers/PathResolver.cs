@@ -39,7 +39,7 @@ namespace DacDeployer.Helpers
             return (publishProfileFolder, chosenPublishProfileFile);
         }
 
-        public static (string beforeDeploymentScript, string sqlCmdVariablesScript) GetBeforeDeploymentPaths(string dacPacFolder = null)
+        public static string  GetBeforeDeploymentPath(string dacPacFolder = null)
         {
             var beforeDeploymentScript =  ConsoleAppArgsParser.GetParamValue("BeforeDeploymentScript");
 
@@ -51,17 +51,7 @@ namespace DacDeployer.Helpers
                     throw new FileNotFoundException($"The BeforeDeploymentScript file is not found on the path provided with \"BeforeDeploymentScript\" console application argument: \"{beforeDeploymentScript}\".");
             }
 
-            var sqlCmdVariablesScript = ConsoleAppArgsParser.GetParamValue("SqlCmdVariablesScript");
-
-            if (!IsNullOrWhiteSpace(sqlCmdVariablesScript) && !IsNullOrWhiteSpace(dacPacFolder))
-            {
-                sqlCmdVariablesScript = Path.Combine(dacPacFolder, sqlCmdVariablesScript);
-
-                if (!File.Exists(sqlCmdVariablesScript))
-                    throw new FileNotFoundException($"The SqlCmdVariablesScript file is not found on the path provided with \"SqlCmdVariablesScript\" console application argument: \"{sqlCmdVariablesScript}\".");
-            }
-
-            return (beforeDeploymentScript, sqlCmdVariablesScript);
+            return beforeDeploymentScript;
         }
 
         public static string GetCompilationFolderPath()
